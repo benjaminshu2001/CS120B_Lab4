@@ -12,7 +12,8 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States [Start, Wait, Inc, IncDepressed, Dec, DecDepressed, Reset} State;
+enum States {Start, Wait, Inc, IncDepressed, Dec, DecDepressed, Reset} State;
+
 
 void Tick_Counter() {
     unsigned char tempA0 = PINA & 0x01;
@@ -58,7 +59,7 @@ void Tick_Counter() {
             }
             break;
         case Reset:
-            if(tempA1 && tempA2) {
+            if(tempA0 && tempA1) {
                 State = Reset;
             }
             else {
@@ -66,7 +67,7 @@ void Tick_Counter() {
             }
             break;
         default:
-            state = Start;
+            State = Start;
             break;
     }
     switch(State) {
