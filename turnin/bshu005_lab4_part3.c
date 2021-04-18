@@ -17,18 +17,18 @@ enum States {Start, Wait, Pound, PoundRelease, PressY, Locked} State;
 
 void Tick_Lock() {
     //tempA0 = PINA & 0x01; //X
-    unsigned char tempA1 = PINA & 0x02; //Y
-    unsigned char tempA2 = PINA & 0x04; //#
-    unsigned char tempA7 = PINA & 0x80; //lock from inside
+    //unsigned char tempA1 = PINA & 0x02; //Y
+    //unsigned char tempA2 = PINA & 0x04; //#
+    //unsigned char tempA7 = PINA & 0x80; //lock from inside
     switch(State) {
         case Start:
             State = Wait;
             break;
         case Wait:
-            if(tempA2 == 0x04) {
+            if((PINA & 0x07) == 0x04) {
                 State = Pound;
             }
-            else if(tempA7 == 0x80) {
+            else if((PINA & 0x80) == 0x80) {
                 State = Locked;
             }
             else {
@@ -36,7 +36,7 @@ void Tick_Lock() {
             }
             break;
         case Pound:
-            if(tempA2 == 0x04) {
+            if((PINA & 0x07) == 0x04) {
                 State = PoundRelease;
             }
             else {
@@ -44,7 +44,7 @@ void Tick_Lock() {
             }
             break;
         case PoundRelease:
-            if(tempA2 == 0x04) {
+            if((PINA & 0x07) == 0x04) {
                 State = PoundRelease;
             }
             else {
@@ -52,7 +52,7 @@ void Tick_Lock() {
             }
             break;
         case PressY:
-            if(tempA1 = 0x02) {
+            if((PINA & 0x07) == 0x02) {
                 State = PressY;
             }
             else {
@@ -60,7 +60,7 @@ void Tick_Lock() {
             }
             break;
         case Locked:
-            if(tempA7 == 0x80) {
+            if((PINA & 0x80) == 0x80) {
                 State = Locked;
             }
             else {
