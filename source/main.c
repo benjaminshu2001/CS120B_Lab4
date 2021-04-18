@@ -1,7 +1,7 @@
 /*	Author: bshu005
  *  Partner(s) Name: 
  *	Lab Section: 22
- *	Assignment: Lab #4  Exercise #1
+ *	Assignment: Lab #4  Exercise #2
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -12,35 +12,33 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States {Start, Wait, Inc, IncDepressed, Dec, DecDepressed, Reset} State;
+enum States {Start, Begin, Wait, Inc, IncDepressed, Dec, DecDepressed, Reset} State;
 
 
 void Tick_Counter() {
-    unsigned char tempA0 = PINA & 0x01;
-    unsigned char tempA1 = PINA & 0x02;
     switch(State) {
         case Start:
+            State = Begin;
+            break;
+        case Begin:
             State = Wait;
             break;
         case Wait:
-            if(tempA0 && !tempA1) {
+            if((PINA & 0x01) == 0x01) {
                 State = Inc;
             }
-            else if(!tempA0 && tempA1) {
+            else if((PINA & 0x01) == 0x01) {
                 State = Dec;
             }
-            else if(tempA0 && tempA1) {
+            else if((PINA & 0x03) == 0x03) {
                 State = Reset;
-            }
-            else {
-                State = Wait;
             }
             break;
         case Inc:
             State = IncDepressed;
             break;
         case IncDepressed:
-            if(tempA0) {
+            if((PINA & 0x01) == 0x01) {
                 State = IncDepressed;
             }
             else {
@@ -51,7 +49,7 @@ void Tick_Counter() {
             State = DecDepressed;
             break;
         case DecDepressed:
-            if(tempA1) {
+            if((PINA & 0x02) == 0x02) {
                 State = DecDepressed;
             }
             else {
@@ -59,7 +57,7 @@ void Tick_Counter() {
             }
             break;
         case Reset:
-            if(tempA0 && tempA1) {
+            if((PINA & 0x03) == 0x03) {
                 State = Reset;
             }
             else {
@@ -74,21 +72,24 @@ void Tick_Counter() {
         case Start:
             PORTC = 0x07;
             break;
+        case Begin:     
+            PORTC = 0x07;
+            break;
         case Wait:
             break;
         case Inc:
-            break;
-        case IncDepressed:
             if(PORTC < 0x09) {
                 PORTC = PORTC + 1;
             }
             break;
-        case Dec:
+        case IncDepressed:
             break;
-        case DecDepressed:
-            if(PORTC < 0x00) {
+        case Dec:
+            if(PORTC > 0x00) {
                 PORTC = PORTC - 1;
             }
+            break;
+        case DecDepressed:
             break;
         case Reset:
             PORTC = 0x00;
@@ -101,7 +102,7 @@ void Tick_Counter() {
 
 int main(void) {
     DDRA = 0x00; PORTA = 0xFF;
-    DDRB = 0xFF; PORTB = 0x00;
+    DDRC = 0xFF; PORTC = 0x00;
 
     while (1) {
         Tick_Counter();
