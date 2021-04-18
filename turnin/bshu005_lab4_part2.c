@@ -27,11 +27,14 @@ void Tick_Counter() {
             if((PINA & 0x01) == 0x01) {
                 State = Inc;
             }
-            else if((PINA & 0x01) == 0x01) {
+            else if((PINA & 0x02) == 0x02) {
                 State = Dec;
             }
             else if((PINA & 0x03) == 0x03) {
                 State = Reset;
+            }
+            else {
+                State = Wait;
             }
             break;
         case Inc:
