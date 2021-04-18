@@ -12,7 +12,7 @@
 #include "simAVRHeader.h"
 #endif
 
-enum SM1_States {SM1_Start, SM1_Press1, SM1_Wait, SM1_Press2} SM1_STATE;
+enum SM1_States {SM1_Start, SM1_Press1, SM1_Wait1, SM1_Press2, SM1_Wait2} SM1_STATE;
 
 void Tick_LED() {
     unsigned char tempA = PINA & 0x01;
@@ -22,31 +22,38 @@ void Tick_LED() {
                 break;
             case SM1_Press1:
                 if(tempA == 0x01) {
-                    SM1_STATE = SM1_Press1;
+                    SM1_STATE = SM1_Wait1;
                 }
                 else {
-                    SM1_STATE = SM1_Wait;
+                    SM1_STATE = SM1_Press1;
                 }
                 break;
-            case SM1_Wait:
+            case SM1_Wait1:
                 if(tempA == 0x01) {
-                    SM1_STATE = SM1_Wait;
+                    SM1_STATE = SM1_Wait1;
                 }
                 else if(tempA == 0x00) {
                     SM1_STATE = SM1_Press2;
                 }
                 else {
-                    SM1_STATE = SM1_Wait;
+                    SM1_STATE = SM1_Wait1;
                 }
                 break;
             case SM1_Press2:
                 if(tempA == 0x01) {
+                    SM1_STATE = SM1_Wait2;
+                }
+                else {
+                    SM1_STATE = SM1_Press2;
+                }
+                break;
+            case SM1_Wait2:
+                if(!tempA) {
                     SM1_STATE = SM1_Press1;
                 }
                 else {
-                    SM1_STATE = SM1_Wait;
+                    SM1_STATE = SM1_Wait2;
                 }
-                break;
             default:
                 SM1_STATE = SM1_Start;
                 break;
@@ -58,13 +65,16 @@ void Tick_LED() {
             case SM1_Press1:
                 PORTB = 0x01;
                 break;
-            case SM1_Wait:
+            case SM1_Wait1:
+                PORTB = 0x02;
                 break;
             case SM1_Press2:
                 PORTB = 0x02;
                 break;
-            default:
+            case SM1_Wait2:
                 PORTB = 0x01;
+                break;
+            default:
                 break;
         }
     }
@@ -76,5 +86,5 @@ int main(void) {
     while (1) {
         Tick_LED();
     }
-    return 1;
+    return 0;
 }
