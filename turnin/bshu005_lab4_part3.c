@@ -12,7 +12,7 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States {Start, Wait, Pound, PoundRelease, PressY, Locked} State;
+enum States {Start, Wait, Pound, PoundRelease, PressY, YRelease} State;
 
 
 void Tick_Lock() {
@@ -25,54 +25,58 @@ void Tick_Lock() {
             State = Wait;
             break;
         case Wait:
-            if((PINA & 0x07) == 0x04) {
+            if(PINA == 0x04) {
                 State = Pound;
-            }
-            else if((PINA & 0x80) == 0x80) {
-                State = Locked;
             }
             else {
                 State = Wait;
             }
             break;
         case Pound:
-            if((PINA & 0x07) == 0x04) {
+            if(PINA == 0x04) {
+                State = Pound;
+            }
+            else if(PINA == 0x00){
                 State = PoundRelease;
             }
             else {
-                State = Pound;
+                State = Wait;
             }
             break;
         case PoundRelease:
-            if((PINA & 0x07) == 0x04) {
+            if(PINA == 0x00) {
                 State = PoundRelease;
             }
-            else {
+            else if(PINA == 0x02) {
                 State = PressY;
+            }
+            else {
+                State = Wait;
             }
             break;
         case PressY:
-            if((PINA & 0x07) == 0x02) {
+            if(PINA == 0x02) {
                 State = PressY;
             }
-            else {
-                State = Wait;
+            else if(PINA == 0x00){
+                State = YRelease;
             }
             break;
-        case Locked:
-            if((PINA & 0x80) == 0x80) {
-                State = Locked;
-            }
-            else {
+        case YRelease:
+            if(PINA == 0x80) {
                 State = Wait;
+            }
+            else if(PINA == 0x00){
+                State = YRelease;
             }
             break;
     }
     switch(State) {
         case Start:
-            PORTC = 0x00;
+            PORTB = 0x00;
             break;
         case Wait:
+            PORTB = 0x00;
             break;
         case Pound:
             break;
@@ -81,8 +85,7 @@ void Tick_Lock() {
         case PressY:
             PORTB = 0x01;
             break;
-        case Locked:
-            PORTB = 0x00;
+        case YRelease:
             break;
     }              
 }
