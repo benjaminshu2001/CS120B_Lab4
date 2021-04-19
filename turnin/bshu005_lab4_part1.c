@@ -24,7 +24,7 @@ void Tick_LED() {
                 if(tempA == 0x01) {
                     SM1_STATE = SM1_Wait1;
                 }
-                else {
+                else if(tempA == 0x00){
                     SM1_STATE = SM1_Press1;
                 }
                 break;
@@ -43,15 +43,15 @@ void Tick_LED() {
                 if(tempA == 0x01) {
                     SM1_STATE = SM1_Wait2;
                 }
-                else {
+                else if(tempA == 0x00) {
                     SM1_STATE = SM1_Press2;
                 }
                 break;
             case SM1_Wait2:
-                if(!tempA) {
+                if(tempA == 0x00) {
                     SM1_STATE = SM1_Press1;
                 }
-                else {
+                else if(tempA == 0x01){
                     SM1_STATE = SM1_Wait2;
                 }
             default:
