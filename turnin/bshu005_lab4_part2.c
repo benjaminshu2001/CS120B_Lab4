@@ -24,13 +24,13 @@ void Tick_Counter() {
             State = Wait;
             break;
         case Wait:
-            if((PINA & 0x01) == 0x01) {
+            if(PINA == 0x01) {
                 State = Inc;
             }
-            else if((PINA & 0x02) == 0x02) {
+            else if(PINA == 0x02) {
                 State = Dec;
             }
-            else if((PINA & 0x03) == 0x03) {
+            else if(PINA == 0x03) {
                 State = Reset;
             }
             else {
@@ -41,30 +41,36 @@ void Tick_Counter() {
             State = IncDepressed;
             break;
         case IncDepressed:
-            if((PINA & 0x01) == 0x01) {
+            if(PINA == 0x01) {
                 State = IncDepressed;
             }
-            else {
+            else if(PINA == 0x00){
                 State = Wait;
+            }
+            else if(PINA == 0x03) {
+                State = Reset;
             }
             break;
         case Dec:
             State = DecDepressed;
             break;
         case DecDepressed:
-            if((PINA & 0x02) == 0x02) {
+            if(PINA == 0x02) {
                 State = DecDepressed;
             }
-            else {
+            else if(PINA == 0x00){
                 State = Wait;
+            }
+            else if(PINA == 0x03) {
+                State = Reset;
             }
             break;
         case Reset:
-            if((PINA & 0x03) == 0x03) {
+            if(PINA == 0x03) {
                 State = Reset;
             }
-            else {
-                State = Wait;
+            else if(PINA == 0x01){
+                State = Inc;
             }
             break;
         default:
@@ -106,7 +112,8 @@ void Tick_Counter() {
 int main(void) {
     DDRA = 0x00; PORTA = 0xFF;
     DDRC = 0xFF; PORTC = 0x00;
-
+    State = Start;
+    PORTC = 0x07;
     while (1) {
         Tick_Counter();
     }
